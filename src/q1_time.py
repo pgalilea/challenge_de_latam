@@ -4,14 +4,14 @@ from datetime import datetime
 import polars as pl
 
 
-def q1_time(file_path: str) -> List[Tuple[datetime.date, str]]:
+def q1_time(file_path: str, top: int = 10) -> List[Tuple[datetime.date, str]]:
     """."""
 
     df = (
         pl.scan_ndjson(
             file_path,
             schema={
-                "url": pl.Utf8,
+                # "url": pl.Utf8,
                 "date": pl.Datetime,
                 "user": pl.Struct({"username": pl.Utf8}),
             },
@@ -20,16 +20,18 @@ def q1_time(file_path: str) -> List[Tuple[datetime.date, str]]:
             user=pl.col("user").struct["username"], date=pl.col("date").dt.date()
         )
         .group_by(["date", "user"])
-        .len(name="count")
-        .with_columns(pl.col("count").sum().over("date").alias("sum_tweets"))
-        .sort(["date", "count"], descending=True)
+        .len(name="user_count")
+        .with_columns(day_tweets=pl.col("user_count").sum().over("date"))
         .group_by("date")
-        .first()
+        .agg(
+            pl.col("user").sort_by("user_count", descending=True).first(),
+            pl.col("day_tweets").max(),
+        )
+        .sort("day_tweets", descending=True)
         .select(["date", "user"])
-        .sort("date")
     )
 
-    # print(df.collect().head(20))
-    # print(df.collect().head(20).rows())
+    # print(df.head(10).collect())
+    # print(df.head(20).collect().rows())
 
-    return df.collect().rows()
+    return df.head(top).collect().rows()
