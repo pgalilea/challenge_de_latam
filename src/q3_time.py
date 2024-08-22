@@ -3,7 +3,13 @@ from typing import List, Tuple
 import polars as pl
 
 def q3_time(file_path: str, top: int = 10) -> List[Tuple[str, int]]:
-    """."""
+    """
+    Obtiene los top n usuarios más influyentes en función de las menciones
+    
+    Utiliza polars para leer el ndjson de forma Lazy.
+    Utiliza una agrupación y transformaciones para procesar los datos.
+    Se transforma el dataframe a una lista de tuplas.
+    """
 
     df = (
         pl.scan_ndjson(

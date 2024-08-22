@@ -5,7 +5,13 @@ import polars as pl
 
 
 def q1_time(file_path: str, top: int = 10) -> List[Tuple[datetime.date, str]]:
-    """."""
+    """
+    Obtiene las top n fechas donde hay más tweets junto al usuario con más tweets en cada fecha.
+
+    Utiliza polars para leer el ndjson de forma Lazy.
+    Utiliza agrupaciones y agregaciones para procesar los datos.
+    Se transforma el dataframe a una lista de tuplas.
+    """
 
     df = (
         pl.scan_ndjson(
